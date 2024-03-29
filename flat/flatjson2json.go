@@ -77,6 +77,7 @@ var parseFnDefault ParseFn = ParseFn(func(
 
 var ParserDefault Parser = ParserNew(parseFnDefault)
 
+// Converter converts an original json map to a converted json map.
 type Converter interface {
 	Convert(context.Context, map[string]any) (map[string]any, error)
 }
@@ -89,8 +90,10 @@ func (f ConvFn) Convert(
 	return f(ctx, original)
 }
 
+// ConvKeys implements Converter.
 type ConvKeys struct{ Keys []string }
 
+// Copies key/val pairs from the original map when key found in [ConvKeys].
 func (k ConvKeys) Convert(
 	_ context.Context,
 	original map[string]any,
