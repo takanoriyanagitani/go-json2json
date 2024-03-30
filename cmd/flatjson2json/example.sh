@@ -1,26 +1,26 @@
 #!/bin/sh
 
-keys(){
-    echo Timestamp
-    echo SeverityText
+keys() {
+	echo Timestamp
+	echo SeverityText
 }
 
-j2j(){
-    local cmd
-    cmd=cat
+j2j() {
+	local cmd
+	cmd=cat
 
-    which jq  | fgrep -q jq && cmd='jq -c'
-    which jaq | fgrep -q jaq && cmd='jaq -c'
+	which jq | fgrep -q jq && cmd='jq -c'
+	which jaq | fgrep -q jaq && cmd='jaq -c'
 
-    readonly cmd
+	readonly cmd
 
-    ${cmd}
+	${cmd}
 }
 
 export ENV_KEYS=$(
-    keys |
-        tr '\n' , |
-        sed 's/,$//'
+	keys |
+		tr '\n' , |
+		sed 's/,$//'
 )
 
 echo keys: ${ENV_KEYS}
@@ -53,5 +53,5 @@ echo '
     }
 }
 ' |
-j2j |
-./flatjson2json
+	j2j |
+	./flatjson2json
