@@ -12,12 +12,13 @@ import (
 
 func ExampleConvKeys_Convert() {
 	ck := fj.ConvKeys{Keys: []string{"seqno", "name"}}
+	var cv fj.Converter = ck.AsIf()
 	original := map[string]any{
 		"seqno": 42,
 		"name":  "JD",
 		"phone": "01-2345-6789",
 	}
-	converted, e := ck.Convert(context.Background(), original)
+	converted, e := cv.Convert(context.Background(), original)
 	if nil != e {
 		log.Fatal(e)
 	}
