@@ -31,9 +31,27 @@ type IoJSON2JSON struct {
 	*json.Encoder
 }
 
+func (i IoJSON2JSON) EncodeConverted(
+	ctx context.Context,
+	original map[string]any,
+) error {
+	converted, e := i.Converter.Convert(ctx, original)
+	if nil != e {
+		return e
+	}
+
+	return i.Encoder.Encode(converted)
+}
+
 func (i IoJSON2JSON) ConvertAll(ctx context.Context) error {
 	m := make(map[string]any)
 	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
 		e := i.Decoder.Decode(&m)
 		switch {
 		case errors.Is(e, io.EOF):
@@ -42,11 +60,7 @@ func (i IoJSON2JSON) ConvertAll(ctx context.Context) error {
 		default:
 			return e
 		}
-		converted, e := i.Converter.Convert(ctx, m)
-		if nil != e {
-			return e
-		}
-		e = i.Encoder.Encode(converted)
+		e = i.EncodeConverted(ctx, m)
 		if nil != e {
 			return e
 		}

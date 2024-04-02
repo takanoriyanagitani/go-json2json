@@ -33,7 +33,7 @@ func ExampleConvKeys_Convert() {
 	// Output: {"name":"JD","seqno":42}
 }
 
-func ExampleIoJSON2JSON_ConvertAll() {
+func ExampleIoJSON2JSON_ConvertAll_noCancel() {
 	var buf bytes.Buffer
 	var dec *json.Decoder = json.NewDecoder(&buf)
 	var enc *json.Encoder = json.NewEncoder(os.Stdout)
@@ -55,4 +55,29 @@ func ExampleIoJSON2JSON_ConvertAll() {
 	// Output:
 	// {"name":"JD","seqno":42}
 	// {"name":"DJ","seqno":43}
+}
+
+func ExampleIoJSON2JSON_ConvertAll_cancel() {
+	var buf bytes.Buffer
+	var dec *json.Decoder = json.NewDecoder(&buf)
+	var enc *json.Encoder = json.NewEncoder(os.Stdout)
+	ck := fj.ConvKeys{Keys: []string{"seqno", "name"}}
+	var cv fj.Converter = ck.AsIf()
+	_, _ = fmt.Fprintf(&buf, `
+		{"seqno":42,"name":"JD","phone":"01-2345-6789"}
+		{"seqno":43,"name":"DJ","phone":"ab-cdef-0123"}
+	`)
+	ij2j := fj.IoJSON2JSON{
+		Decoder:   dec,
+		Converter: cv,
+		Encoder:   enc,
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	e := ij2j.ConvertAll(ctx)
+	if nil == e {
+		log.Fatal("Should cancel")
+	}
+	fmt.Printf("canceled.\n")
+	// Output: canceled.
 }
